@@ -3,14 +3,15 @@
 // 디렉토리 관련 함수 헤더
 #include "headerFile/mkdir.h"
 #include "headerFile/ls.h"
-#include "headerFile/cp.h"
 #include "headerFile/cat.h"
 #include "headerFile/find.h"
-#include "headerFile/man.h"
 #include "headerFile/chmod.h"
 #include "headerFile/grep.h"
 #include "headerFile/chown.h"
 #include "headerFile/rmdir.h"
+#include "headerFile/ps.h"
+#include "headerFile/man.h"
+#include "headerFile/cp.h"
 
 
 #define MAX_ARGC 10 // 최대 가질 수 있는 옵션 9개, 명령어 제외
@@ -20,7 +21,7 @@
 //char* (*argv)[] 10개의 배열포인터를 가지고 있는 배열포인터
 //명령어 문자열 분리를 해주는 함수
 //메인문의 argv[0]에 명령어가 저장 다음 배열부턴 옵션이 문자열로 저장
-int command_split(char* command_line, char* (*argv)[])
+int cmd_split(char* command_line, char* (*argv)[])
 {
     int i = 0;
     char *temp;
@@ -53,17 +54,20 @@ int main()
     pid_t pid;
     int status;
 
-    printf("shell loading...\n");
+    printf("\nOS team 3 >>>>\n");
+    printf("starting os...\n\n");
     do{
+        char *username = getlogin();
+        struct passwd* userinfo = getpwnam(username);
+
         getcwd(buf, 1024); // buf 현재 순회중인 경로가 buf에 저장
-        printf("%s > ", buf);
+        printf("%s@%s:~$ ", userinfo->pw_name,buf);
         rewind(stdin);
         scanf("%[^\n]s", command);
         getchar();
 
-        argc = command_split(command, &argv);
+        argc = cmd_split(command, &argv);
 
-        // ----------- Linux 명령어 구현 ----------------
         // argv[0] = 명령어가 문자열 형태로 저장, 다음 인수부턴 옵션이 문자열로 저장
         if(strcmp(argv[0], "cd") == 0) // 절대 경로 또는 상대 경로를 통해 디렉토리 변경
         { 
@@ -77,30 +81,13 @@ int main()
         {
             ls(&argv);
         }
-        else if (strcmp(argv[0], "cp") == 0) // 파일 복사(디렉토리 x)
-        {
-            cp(&argv);
-        }
-        else if (strcmp(argv[0], "mv") == 0) //copy 명령어 실행 후 원본파일 제거
-        {
-            cp(&argv);
-            unlink(argv[1]); 
-        }
         else if (strcmp(argv[0], "find") == 0)
         {
             _find(&argv);
         }
-        /*else if (strcmp(argv[0], "rm") == 0)
-        {
-            rm(&argv);
-        }*/
         else if (strcmp(argv[0], "clear") == 0)
         {
             write(1, "\033[1;1H\033[2J", 10);
-        }
-        else if (strcmp(argv[0], "man") == 0)
-        {
-            man(&argv);
         }
         else if (strcmp(argv[0], "chmod") == 0)
         {
@@ -113,6 +100,10 @@ int main()
         else if (strcmp(argv[0], "chown") == 0)
         {
             my_chown(&argv, argc);
+        }
+        else if (strcmp(argv[0], "ps") == 0)
+        {
+            my_ps(&argv, argc);
         }
         else if (!strcmp(argv[0], "mkdir")) // 디렉토리 생성
         {
@@ -133,6 +124,15 @@ int main()
             }
                 
         }
+        else if (strcmp(argv[0], "mv") == 0) //copy 명령어 실행 후 원본파일 제거
+        {
+            cp(&argv);
+            unlink(argv[1]); 
+        }
+        else if (strcmp(argv[0], "cp") == 0) // 파일 복사(디렉토리 x)
+        {
+            cp(&argv);
+        }
         else if (!strcmp(argv[0], "rmdir"))
         {
             RMDIR(argc, argv);
@@ -143,6 +143,10 @@ int main()
                 Cat(argc, "", argv[1]);
             if (argc == 3)
                 Cat(argc, argv[1], argv[2]);
+        }
+        else if (strcmp(argv[0], "man") == 0)
+        {
+            man(&argv, argc);
         }
         else if (strcmp(argv[0], EXIT) == 0)
         {
@@ -155,7 +159,7 @@ int main()
         init_argv(&argv);
         // ----------- exit => 종료 ---------------------
     }while(strcmp(command, EXIT)!=0);
-    printf("exit the shell...\n");
+    printf("GoodBye!\n");
 
     return 0;
 }

@@ -1,10 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <unistd.h>
-
-//extern char *instr[20];
+#include "./headers.h"
 
 int load_text(char* txt);
 
@@ -32,7 +26,6 @@ int line = 0;
 
 FILE *fp;
 
-//grep NCSA ncsa.txt
 void my_grep(char* (*argv)[])
 {
 	int i, j, x = 0;
@@ -48,11 +41,8 @@ void my_grep(char* (*argv)[])
 	    arc++;
     }   
 	int size = 256;
-        char curDir[256];
-        getcwd(curDir, size); //현재 디렉토리 위치
-        // printf("[%s]>> ", curDir);
-
-    
+    char curDir[256];
+    getcwd(curDir, size); //현재 디렉토리 위치
     optind = 1;
     
 	while ((op = getopt(arc, (*argv), "nvi")) != -1)	//각 옵션들 확인 및 결정
